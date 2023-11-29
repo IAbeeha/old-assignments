@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <style>
+    * {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Poppins", sans-serif;
+}
+body {
+  background: #1abc9c;
+  overflow: hidden;
+}
+    ul.nav {
+        /* margin: 0; */
+        margin-bottom: 20px;
+        padding: 0;
+        list-style: none;
+        height: 66px;
+        line-height: 66px;
+        background: #0d7963; /* you can change the backgorund color here. */
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 13px;
+      }
+      ul.nav li {
+        border-right: 1px solid #189b80; /* you can change the border color matching to your background color */
+        float: left;
+      }
+      ul.nav a {
+        display: block;
+        padding: 0 28px;
+        color: #ccece6;
+        text-decoration: none;
+      }
+      ul.nav a:hover,
+      ul.nav li.current a {
+        background: #086754;
+      }
+  </style>
+  <body>
+        <%- include('partials/navbar') %>
+
+    <h1>Update User Data </h1>
+
+       <div class="container">
+      <div class="col-sm-6 col-sm-offset-3">
+        <form  id="myForm" >
+           <input type="text" name="name" placeholder="name" required>
+        <input type="email" name="email" placeholder="email" required>
+          <input type="password" name="password" placeholder="password"  pattern=".{5,}"   required title="5 characters minimum"  required>
+
+        <button type="submit" onclick="submitForm()">Update</button>
+        </form>
+        <hr />
+      </div>
+  </body>
+  <script>
+function submitForm() {
+    const form = document.getElementById('myForm');
+    const data = new FormData(form);
+    const urlEncoded = new URLSearchParams(data).toString();
+
+    fetch('/updateUser', {
+        method: 'PATCH',
+        body: urlEncoded,
+        headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+    }
+  })
+  .then((responseData) => {
+    confirm("User sucessfully updated")
+                  window.location.href = `http://localhost:3000/`;
+                  // window.location.replace  = `http://localhost:3000/`;
+
+                })
+  
+    .catch(error => {
+        console.error('Error:', error);
+    });}
+   function submitForm() {
+        fetch("/deleteUser", {
+          method: "DELETE",
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            // Handle the response from the server
+            const message = data.message;
+
+            if (message) {
+              confirm(message);
+            }
+            window.location.replace("http://localhost:3000/login");
+            if (response.redirected) {
+              window.location.href = response.url;
+            }
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+          });
+      }
+</script>
+</html>

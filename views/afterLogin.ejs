@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+      /* Style for the navigation bar */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Poppins", sans-serif;
+      }
+      body {
+        background: #1abc9c;
+        /* overflow: hidden; */
+      }
+
+      .blog-list {
+        list-style: none;
+        padding: 0;
+      }
+
+      .blog-item {
+        margin: 10px 0;
+        padding: 10px;
+        border: 1px solid #ddd;
+      }
+
+      .blog-title {
+        cursor: pointer;
+      }
+
+      .like-button {
+        cursor: pointer;
+        color: blue;
+      }
+
+      .full-blog {
+        display: none;
+      }
+
+      ul.nav {
+        /* margin: 0; */
+        margin-bottom: 20px;
+        padding: 0;
+        list-style: none;
+        height: 66px;
+        line-height: 66px;
+        background: #0d7963; /* you can change the backgorund color here. */
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 13px;
+      }
+      ul.nav li {
+        border-right: 1px solid #189b80; /* you can change the border color matching to your background color */
+        float: left;
+      }
+      ul.nav a {
+        display: block;
+        padding: 0 28px;
+        color: #ccece6;
+        text-decoration: none;
+      }
+      ul.nav a:hover,
+      ul.nav li.current a {
+        background: #086754;
+      }
+    </style>
+  </head>
+  <body>
+    <%- include('partials/navbar') %>
+    <h1>All Blogs</h1>
+    <ul class="blog-list">
+      <!-- Blogs will be dynamically generated here -->
+    </ul>
+    <div class="full-blog" id="full-blog">
+      <h2 id="full-blog-title"></h2>
+      <p id="full-blog-content"></p>
+      <button id="like-button">Like</button>
+    </div>
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        console.log("here");
+
+        const blogList = document.querySelector(".blog-list");
+        const fullBlog = document.querySelector("#full-blog");
+        const fullBlogTitle = document.querySelector("#full-blog-title");
+        const fullBlogContent = document.querySelector("#full-blog-content");
+        const likeButton = document.querySelector("#like-button");
+
+        // Function to fetch and display blogs
+        const displayBlogs = () => {
+          // Make an AJAX request to fetch blogs from the server
+          console.log("here");
+          fetch("/allBlogs")
+            .then((response) => response.json())
+            .then((blogs) => {
+              blogs.forEach((blog) => {
+                // Create a new list item for each blog
+                const listItem = document.createElement("li");
+                listItem.className = "blog-item";
+                const userName = blog.user ? blog.user.name : "Unknown User";
+                listItem.innerHTML = `
+                        <h3 class="blog-title">${blog.title}</h3>
+                        <p>Created on: ${new Date(
+                          blog.createdAt
+                        ).toDateString()}</p>
+                        <p>Created by: ${userName}</p>
+
+                    `;
+                blogList.appendChild(listItem);
+
+                // Add click event listener to each blog title
+                const title = listItem.querySelector(".blog-title");
+                title.addEventListener("click", () => {
+                  console.log("full");
+                  // Display the full blog content
+                  console.log(blog.content);
+                  fullBlog.style.display = "block";
+                  fullBlogTitle.textContent = blog.title;
+                  fullBlogContent.textContent = blog.content;
+
+                  // Set up the like button in the full blog view
+                  likeButton.dataset.blogid = blog.id;
+                });
+              });
+            })
+            .catch((error) => console.error(error));
+        };
+
+        // Handle liking a blog
+        likeButton.addEventListener("click", () => {
+          const blogId = likeButton.dataset.blogid;
+          console.log("here");
+          // Send a request to like the blog with the given ID
+          fetch(`/api/like/${blogId}`, {
+            method: "POST",
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              const message = data.message;
+
+              if (message) {
+                alert(message);
+              }
+            })
+            .catch((error) => console.error(error));
+        });
+
+        // Load and display blogs when the page loads
+        displayBlogs();
+      });
+      function submitForm() {
+        fetch("/deleteUser", {
+          method: "DELETE",
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            // Handle the response from the server
+            const message = data.message;
+
+            if (message) {
+              confirm(message);
+            }
+            window.location.replace("http://localhost:3000/login");
+            if (response.redirected) {
+              window.location.href = response.url;
+            }
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+          });
+      }
+    </script>
+
+    <!-- Your page content goes here -->
+  </body>
+</html>

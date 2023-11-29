@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Poppins", sans-serif;
+      }
+      body {
+        background: #1abc9c;
+        /* overflow: hidden; */
+      }
+      .blog {
+        width: 70vw;
+        min-width: 400px;
+        height: 100px;
+        display: block;
+        margin: auto;
+        padding: 50px 0;
+      }
+
+      textarea::-webkit-scrollbar {
+        width: 10px;
+      }
+
+      textarea::-webkit-scrollbar-thumb {
+        background: rgba(0, 0, 0, 0.1);
+        border-radius: 10px;
+      }
+
+      .title,
+      .article {
+        width: 100%;
+        min-height: 100px;
+        height: auto;
+        outline: none;
+        font-size: 50px;
+        font-weight: 600;
+        color: #2d2d2d;
+        resize: none;
+        border: none;
+        padding: 10px;
+        border-radius: 10px;
+      }
+
+      .title::placeholder,
+      .article::placeholder {
+        color: #2d2d2d;
+      }
+
+      .article {
+        height: 500px;
+        font-size: 20px;
+        margin-top: 20px;
+        line-height: 30px;
+        font-weight: 500;
+        padding-bottom: 100px;
+        white-space: pre-wrap;
+      }
+      .blog-options {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 60px;
+        background: #0d7963;
+        z-index: 9;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .btn {
+        border: none;
+        outline: none;
+        cursor: pointer;
+      }
+
+      .btn.grey {
+        background: #0d7963;
+        color: #0d7963;
+        margin-left: 20px;
+        font-size: 14px;
+      }
+      ul.nav {
+        /* margin: 0; */
+        margin-bottom: 20px;
+        padding: 0;
+        list-style: none;
+        height: 66px;
+        line-height: 66px;
+        background: #0d7963; /* you can change the backgorund color here. */
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 13px;
+      }
+      ul.nav li {
+        border-right: 1px solid #189b80; /* you can change the border color matching to your background color */
+        float: left;
+      }
+      ul.nav a {
+        display: block;
+        padding: 0 28px;
+        color: #ccece6;
+        text-decoration: none;
+      }
+      ul.nav a:hover,
+      ul.nav li.current a {
+        background: #086754;
+      }
+    </style>
+  </head>
+  <body>
+    <%- include('partials/navbar') %>
+
+    <div class="blog">
+      <textarea
+        type="text"
+        class="title"
+        placeholder="Blog title..."
+      ></textarea>
+      <textarea
+        type="text"
+        class="article"
+        placeholder="Start writing here..."
+      ></textarea>
+    </div>
+    <div class="blog-options">
+      <button class="btn dark publish-btn" id="publish-button">Publish</button>
+      <!-- <input type="file" accept="image/*" id="image-upload" hidden />
+      <label for="image-upload" class="btn grey upload-btn">Upload Image</label> -->
+    </div>
+  </body>
+  <script>
+    // Get references to the title and article textareas and the publish button
+    const titleTextarea = document.querySelector(".title");
+    const articleTextarea = document.querySelector(".article");
+    const publishButton = document.getElementById("publish-button");
+
+    // Add a click event listener to the publish button
+    publishButton.addEventListener("click", () => {
+      // Get the title and article content from the textareas
+      const title = titleTextarea.value;
+      const article = articleTextarea.value;
+
+      // Check if both the title and article are not empty
+      if (title.trim() === "" || article.trim() === "") {
+        alert("Title and article content cannot be empty");
+        return;
+      }
+
+      // Prepare the data to be sent to the server
+      const data = {
+        title: title,
+        article: article,
+      };
+      const urlEncoded = new URLSearchParams(data).toString();
+
+      // Make an HTTP POST request to your server to save the data
+      fetch("/addBlog", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      })
+        .then((response) => {
+          if (response.ok) {
+            alert("Blog post published successfully");
+            window.location.href = `http://localhost:3000/`;
+
+            // You can reset the textareas or redirect the user to a new page here
+          } else {
+            alert("Failed to publish blog post");
+          }
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+        });
+    });
+    function submitForm() {
+      fetch("/deleteUser", {
+        method: "DELETE",
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          // Handle the response from the server
+          const message = data.message;
+
+          if (message) {
+            confirm(message);
+          }
+          window.location.replace("http://localhost:3000/login");
+          if (response.redirected) {
+            window.location.href = response.url;
+          }
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+        });
+    }
+  </script>
+</html>
